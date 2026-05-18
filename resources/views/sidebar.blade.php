@@ -22,6 +22,7 @@ Store
         <li class="LI1"><a href="{{ route('transactions.index') }}">Transactions</a></li>
         <li class="LI1"><a href="{{ route('paymentmethods.index') }}">Payment Method</a></li>
         <li class="LI1"><a href="{{ route('paymentterms.index') }}">Payment Term</a></li>
+        <li class="LI1"><a href="{{ route('sales.index') }}">Sales</a></li>
 
     </ul>
 </aside>

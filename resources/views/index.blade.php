@@ -40,28 +40,12 @@
             padding: 20px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-
         tr {
             border: 1px solid black;
         }
 
-        td, th {
-            padding: 14px 28px;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        td:nth-child(even), th:nth-child(even) {
+        td:nth-child(even) {
             background-color: #deffde;
-        }
-
-        th {
-            font-weight: 600;
         }
 
         .hide-scroll{
@@ -88,6 +72,21 @@
         ::-webkit-scrollbar-thumb {
         background: #00000000;
         border-radius: 10px;
+        }
+
+        thead, th {
+            background: #007e1d;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
         }
     </style>
 </head>

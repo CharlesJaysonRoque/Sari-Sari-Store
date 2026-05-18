@@ -14,6 +14,7 @@ use App\Http\Controllers\ViolationController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PaymentTermsController;
+use App\Http\Controllers\SaleController;
 
 Route::get('/', function () {
     return view('index');
@@ -36,3 +37,4 @@ Route::resource('violations', ViolationController::class);
 Route::resource('transactions', TransactionController::class);
 Route::resource('paymentmethods', PaymentMethodController::class);
 Route::resource('paymentterms', PaymentTermsController::class);
+Route::resource('sales', SaleController::class);

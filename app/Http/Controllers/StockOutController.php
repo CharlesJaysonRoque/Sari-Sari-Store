@@ -27,8 +27,23 @@ class StockOutController extends Controller
     {
         $products = Product::all();
         $reasons = Reason::all();
-        $transactions = Transaction::all();
-        return view('StockOut.outcreate', compact('products', 'reasons', 'transactions'));
+
+        $sorted_stocks = \App\Models\Stocks::with('product.category')
+    ->get()
+    ->sortBy([
+        fn ($s) => $s->product->category->title ?? 'Uncategorized',
+        fn ($s) => $s->product->name,
+        fn ($s) => $s->version,
+    ])
+    ->groupBy(fn ($s) =>
+        $s->product->category->title ?? 'Uncategorized'
+    );
+
+        return view('StockOut.outcreate', compact(
+            'products',
+            'reasons',
+            'sorted_stocks'
+        ));
     }
 
     /**
@@ -36,16 +51,43 @@ class StockOutController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'product_id' => 'required|integer|exists:products,ID',
-            'reason_id' => 'required|integer|exists:reasons,id',
-            'quantity' => 'required|integer|min:1',
-            'transaction_id' => 'nullable|integer|exists:transactions,ID',
+        $request->validate([
+            'reason_id' => 'required|exists:reasons,id',
+            'product_ids' => 'required|array|min:1',
+            'product_ids.*' => 'required|exists:products,id',
+            'quantities' => 'required|array',
+            'quantities.*' => 'required|integer|min:1',
         ]);
 
-        StockOut::create($data);
+        foreach ($request->product_ids as $index => $productId)
+        {
+            $qty = $request->quantities[$index];
 
-        return redirect()->route('stockout.index')->with('success', 'Stock-out record added successfully!');
+            // OPTIONAL: check stock first
+            $stock = \App\Models\Stocks::where('product_id', $productId)->first();
+
+            if ($stock && $stock->stock_quantity < $qty) {
+                return back()->withErrors([
+                    'stock' => "Not enough stock for product ID $productId"
+                ]);
+            }
+
+            // reduce stock
+            if ($stock) {
+                $stock->decrement('stock_quantity', $qty);
+            }
+
+            // create stock out record
+            \App\Models\StockOut::create([
+                'product_id' => $productId,
+                'reason_id' => $request->reason_id,
+                'quantity' => $qty,
+            ]);
+        }
+
+        return redirect()
+            ->route('stockout.index')
+            ->with('success', 'Stock Out created successfully!');
     }
 
     /**

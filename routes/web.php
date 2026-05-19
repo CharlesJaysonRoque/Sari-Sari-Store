@@ -15,6 +15,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PaymentTermsController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\DebtController;
 
 Route::get('/', function () {
     return view('index');
@@ -38,3 +39,7 @@ Route::resource('transactions', TransactionController::class);
 Route::resource('paymentmethods', PaymentMethodController::class);
 Route::resource('paymentterms', PaymentTermsController::class);
 Route::resource('sales', SaleController::class);
+Route::resource('debts', DebtController::class);
+
+Route::put('/debts/{customer}/pay', [DebtController::class, 'pay'])
+    ->name('debts.pay');

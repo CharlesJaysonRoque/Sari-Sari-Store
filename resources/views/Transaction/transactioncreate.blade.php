@@ -6,7 +6,6 @@
 
 <div style="display:flex; gap:2vw;">
 
-    <!-- LEFT: FORM -->
     <div style="width:50%;">
 
         <h2>Add Transaction</h2>
@@ -38,7 +37,6 @@
                 @endforeach
             </select>
 
-            <!-- CART DATA GOES HERE -->
             <div id="hiddenInputs"></div>
 
             <hr>
@@ -49,11 +47,17 @@
         </form>
     </div>
 
-    <!-- RIGHT: PRODUCTS -->
     <div style="width:50%;">
         <h2>Products</h2>
+        <input
+            type="text"
+            id="searchInput"
+            onkeyup="searchProducts()"
+            placeholder="Search products..."
+            style="width: 100%; margin-bottom: 10px;"
+        >
         <div style="overflow-y: auto; max-height: 52vh;">
-            <table border="1" width="100%">
+            <table id="productsTable" border="1" width="100%">
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -110,7 +114,6 @@
                 <th>Action</th>
             </tr>
         </thead>
-
         <tbody id="selectedBody"></tbody>
     </table>
 </div>
@@ -233,6 +236,21 @@
             }
 
             renderCart();
+        }
+
+        function searchProducts() {
+            let query = document.getElementById("searchInput").value.toLowerCase();
+            let rows = document.querySelectorAll("#productsTable tbody tr");
+
+            rows.forEach(row => {
+                // skip category rows (they have colspan)
+                let firstCell = row.cells[0];
+                if (!firstCell) return;
+
+                let name = firstCell.innerText.toLowerCase();
+
+                row.style.display = name.includes(query) ? "" : "none";
+            });
         }
 
         function renderCart() {

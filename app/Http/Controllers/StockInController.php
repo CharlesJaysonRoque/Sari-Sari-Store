@@ -24,9 +24,18 @@ class StockInController extends Controller
      */
     public function create()
     {
-        $products = Product::all();
         $suppliers = Supplier::all();
-        return view('StockIn.increate', compact('products', 'suppliers'));
+
+        $sorted_stocks = \App\Models\Stocks::with('product')
+            ->get()
+            ->groupBy(fn($stock) =>
+                $stock->product->category->title ?? 'Uncategorized'
+            );
+
+        return view(
+            'StockIn.increate',
+            compact('suppliers', 'sorted_stocks')
+        );
     }
 
     /**
@@ -34,17 +43,28 @@ class StockInController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'product_id' => 'required|exists:products,ID',
-            'supplier_id' => 'required|exists:suppliers,ID',
-            'cost_price' => 'required|numeric|min:0',
-            'selling_price' => 'required|numeric|min:0',
-            'quantity' => 'required|integer|min:1',
+        $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
+            'product_ids' => 'required|array',
+            'quantities' => 'required|array',
+            'cost_prices' => 'required|array',
+            'selling_prices' => 'required|array',
         ]);
 
-        StockIn::create($data);
+        foreach ($request->product_ids as $index => $productId)
+        {
+            StockIn::create([
+                'supplier_id' => $request->supplier_id,
+                'product_id' => $productId,
+                'quantity' => $request->quantities[$index],
+                'cost_price' => $request->cost_prices[$index],
+                'selling_price' => $request->selling_prices[$index],
+            ]);
+        }
 
-        return redirect()->route('stockin.index')->with('success', 'Stock-in record added successfully!');
+        return redirect()
+            ->route('stockin.index')
+            ->with('success', 'Stock In Added Successfully');
     }
 
     /**
